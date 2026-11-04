@@ -1,14 +1,15 @@
 import { readFile, writeFile, mkdir } from 'fs/promises';
 import { existsSync } from 'fs';
-import { join, resolve } from 'path';
+import { join } from 'path';
 import { Database } from '../models';
+import { dataDir } from '../paths';
 
 export class DatabaseService {
   private dbPath: string;
   private dataDir: string;
 
   constructor() {
-    this.dataDir = resolve(process.cwd(), 'data');
+    this.dataDir = dataDir;
     this.dbPath = join(this.dataDir, 'db.json');
   }
 
@@ -35,19 +36,8 @@ export class DatabaseService {
   }
 
   async readDatabase(): Promise<Database> {
-    try {
-      const data = await readFile(this.dbPath, 'utf8');
-      return JSON.parse(data);
-    } catch (error) {
-      console.error('Error reading database:', error);
-      const emptyDb: Database = {
-        photos: [],
-        albums: [],
-        photosOnAlbums: []
-      };
-      await this.writeDatabase(emptyDb);
-      return emptyDb;
-    }
+    const data = await readFile(this.dbPath, 'utf8');
+    return JSON.parse(data) as Database;
   }
 
   async writeDatabase(data: Database): Promise<void> {

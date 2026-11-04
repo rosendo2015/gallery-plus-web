@@ -26,11 +26,14 @@ export default function usePhoto(id?: string) {
       const { data: photo } = await api.post<Photo>("/photos", {
         title: payload.title,
       });
-      await api.post(
-        `/photos/${photo.id}/image`,
-        { file: payload.file[0] },
-        { headers: { "Content-Type": "multipart/form-data" } },
-      );
+      try {
+        const imageData = new FormData();
+        imageData.append("file", payload.file[0]);
+        await api.post(`/photos/${photo.id}/image`, imageData);
+      } catch (error) {
+        await api.delete(`/photos/${photo.id}`);
+        throw error;
+      }
       if (payload.albumsIds && payload.albumsIds.length > 0) {
         await managePhotoOnAlbum(photo.id, payload.albumsIds);
       }

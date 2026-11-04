@@ -1,13 +1,14 @@
 import {writeFile, unlink, mkdir} from "fs/promises";
 import {existsSync} from "fs";
-import {join, resolve, extname} from "path";
+import {join, extname} from "path";
 import {randomUUID} from "crypto";
+import {imagesDir} from "../paths";
 
 export class ImageService {
 	private imagesDir: string;
 
 	constructor() {
-		this.imagesDir = resolve(process.cwd(), "data", "images");
+		this.imagesDir = imagesDir;
 	}
 
 	private async ensureImagesDirExists(): Promise<void> {
@@ -45,11 +46,19 @@ export class ImageService {
 	}
 
 	async deleteImage(imageId: string): Promise<void> {
-		const imagePath = join(this.imagesDir, imageId);
+		const storedPath = join(this.imagesDir, imageId);
+		if (existsSync(storedPath)) {
+			try {
+				await unlink(storedPath);
+			} catch (error) {
+				console.error("Error deleting image file:", error);
+			}
+			return;
+		}
+
 		const extensions = [".jpg", ".jpeg", ".png"];
-		
 		for (const ext of extensions) {
-			const fullPath = `${imagePath}${ext}`;
+			const fullPath = join(this.imagesDir, `${imageId}${ext}`);
 			if (existsSync(fullPath)) {
 				try {
 					await unlink(fullPath);

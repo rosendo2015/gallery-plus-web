@@ -1,13 +1,14 @@
 import Fastify from "fastify";
 import multipart from "@fastify/multipart";
 import staticFiles from "@fastify/static";
-import {resolve} from "path";
+import {mkdir} from "fs/promises";
 import {DatabaseService} from "./services/database-service";
 import {ImageService} from "./services/image-service";
 import {PhotosService} from "./photos/photos-service";
 import {AlbumsService} from "./albums/albums-service";
 import {photosRoutes} from "./photos/photos-routes";
 import {albumsRoutes} from "./albums/albums-routes";
+import {dataDir, imagesDir} from "./paths";
 
 // Start server
 const start = async () => {
@@ -28,9 +29,11 @@ const start = async () => {
 		},
 	});
 
+	await mkdir(imagesDir, {recursive: true});
+
 	// Serve static images
 	await fastify.register(staticFiles, {
-		root: resolve(process.cwd(), "data", "images"),
+		root: imagesDir,
 		prefix: "/images/",
 	});
 
@@ -58,7 +61,7 @@ const start = async () => {
     console.log(`🚀 Server running at http://localhost:${port}`);
     console.log(`📁 Images served at http://localhost:${port}/images/`);
     console.log(`🏥 Health check at http://localhost:${port}/health`);
-    console.log(`📂 Data directory: ${resolve(process.cwd(), "data")}`);
+    console.log(`📂 Data directory: ${dataDir}`);
 	} catch (err) {
 		fastify.log.error(err);
 		process.exit(1);
