@@ -2,6 +2,10 @@
 
 Aplicação web para organizar fotos em álbuns. Inclui um frontend em React e um servidor Fastify no mesmo repositório, com persistência em arquivo JSON e upload de imagens.
 
+## Perview
+
+![preview](./.github/preview.png)
+
 ## Funcionalidades
 
 - Listar fotos, filtrar por álbum e buscar por texto
